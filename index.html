@@ -6,10 +6,11 @@
   <title>تحدي كيمياء الكشوفات - لعبة الثعبان</title>
   <style>
     :root {
-      --bg-color: #0f172a;
+      --bg-color: #0b1329;
       --card-bg: #1e293b;
       --text-color: #f8fafc;
       --accent: #38bdf8;
+      --accent-hover: #0284c7;
       --border-color: #334155;
       --board-bg: #020617;
       --snake-head: #22c55e;
@@ -24,6 +25,7 @@
       --card-bg: #ffffff;
       --text-color: #0f172a;
       --accent: #0284c7;
+      --accent-hover: #0369a1;
       --border-color: #cbd5e1;
       --board-bg: #e2e8f0;
       --snake-head: #15803d;
@@ -65,6 +67,7 @@
       flex-direction: column;
       justify-content: space-between;
       align-items: center;
+      gap: 4px;
     }
 
     header {
@@ -72,14 +75,14 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 6px;
+      gap: 4px;
     }
 
     .pill-btn {
       background: var(--card-bg);
       color: var(--text-color);
       border: 1px solid var(--border-color);
-      padding: 4px 8px;
+      padding: 4px 7px;
       border-radius: 6px;
       cursor: pointer;
       font-size: 11px;
@@ -119,6 +122,10 @@
       font-weight: bold;
       font-size: 12px;
       color: var(--accent);
+      min-height: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .question-box {
@@ -128,15 +135,15 @@
       border-radius: 8px;
       padding: 4px 8px;
       text-align: center;
-      min-height: 44px;
-      max-height: 52px;
+      min-height: 48px;
+      max-height: 56px;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 12px;
       font-weight: bold;
-      line-height: 1.25;
-      overflow: hidden;
+      line-height: 1.3;
+      overflow-y: auto;
     }
 
     .game-container {
@@ -148,6 +155,7 @@
       border-radius: 10px;
       overflow: hidden;
       touch-action: none;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
     }
 
     canvas {
@@ -158,34 +166,61 @@
 
     .overlay {
       position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.88);
+      inset: 0;
+      background: rgba(11, 19, 41, 0.94);
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      padding: 15px;
+      padding: 14px;
       text-align: center;
-      z-index: 10;
+      z-index: 20;
+      backdrop-filter: blur(4px);
     }
 
     .overlay.hidden {
-      display: none;
+      display: none !important;
+    }
+
+    .player-input {
+      width: 80%;
+      max-width: 240px;
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1.5px solid var(--accent);
+      background: var(--card-bg);
+      color: #fff;
+      font-size: 13px;
+      text-align: center;
+      outline: none;
+      margin: 8px 0;
     }
 
     .btn {
       background: var(--accent);
-      color: #000;
+      color: #0b1329;
       border: none;
-      padding: 8px 20px;
+      padding: 7px 16px;
       border-radius: 6px;
-      font-size: 14px;
+      font-size: 12px;
       font-weight: bold;
       cursor: pointer;
-      margin-top: 10px;
+      margin-top: 6px;
+      transition: background 0.2s, transform 0.1s;
+    }
+
+    .btn:active {
+      transform: scale(0.97);
+    }
+
+    .btn-share {
+      background: #10b981;
+      color: #fff;
+    }
+
+    .btn-download {
+      background: #6366f1;
+      color: #fff;
     }
 
     .btn-skip {
@@ -200,24 +235,49 @@
       margin-top: 2px;
     }
 
+    .loading-dots::after {
+      content: '.';
+      animation: dots 1.5s steps(5, end) infinite;
+    }
+    @keyframes dots {
+      0%, 20% { content: '.'; }
+      40% { content: '..'; }
+      60% { content: '...'; }
+      80%, 100% { content: ''; }
+    }
+
+    .advice-card {
+      margin-top: 14px;
+      padding: 10px 14px;
+      background: rgba(56, 189, 248, 0.12);
+      border-right: 4px solid var(--accent);
+      border-radius: 6px;
+      font-size: 12px;
+      line-height: 1.4;
+      color: #e2e8f0;
+      max-width: 90%;
+    }
+
     .mobile-controls {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 5px;
-      width: 170px;
-      height: 90px;
+      gap: 6px;
+      width: 190px;
+      height: 94px;
+      margin-bottom: 4px;
     }
 
     .ctrl-btn {
       background: var(--card-bg);
-      border: 1px solid var(--border-color);
+      border: 1.5px solid var(--border-color);
       color: var(--text-color);
-      font-size: 16px;
+      font-size: 18px;
       border-radius: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     }
 
     .ctrl-btn:active {
@@ -226,17 +286,18 @@
     }
 
     .up { grid-column: 2; grid-row: 1; }
-    .left { grid-column: 1; grid-row: 2; }
+    .right { grid-column: 1; grid-row: 2; }
     .down { grid-column: 2; grid-row: 2; }
-    .right { grid-column: 3; grid-row: 2; }
+    .left { grid-column: 3; grid-row: 2; }
   </style>
 </head>
 <body>
 
   <div class="main-wrapper">
     <header>
-      <h3 style="font-size: 13px;">🐍 كيمياء الثانوية العامة</h3>
+      <h3 style="font-size: 12px;">🐍 كيمياء الثانوية العامة</h3>
       <div style="display: flex; gap: 4px;">
+        <button class="pill-btn" id="pauseBtn" onclick="togglePause()">⏸️ إيقاف</button>
         <button class="pill-btn" id="speedBtn" onclick="cycleSpeed()">السرعة: متوسط ⚡</button>
         <button class="pill-btn" id="themeBtn" onclick="toggleTheme()">☀️ نهار</button>
       </div>
@@ -257,7 +318,7 @@
       </div>
       <div class="stat-card">
         <div>القلوب</div>
-        <div class="stat-val" id="lives">❤️❤️❤️</div>
+        <div class="stat-val" id="lives" style="font-size: 10px;">❤️❤️❤️</div>
       </div>
       <div class="stat-card">
         <div>تخطي</div>
@@ -266,69 +327,122 @@
       </div>
       <div class="stat-card">
         <div>الوقت</div>
-        <div class="stat-val" id="timer">15</div>
+        <div class="stat-val" id="timer">20</div>
       </div>
     </div>
 
-    <div class="question-box" id="questionText">اضغط "ابدأ اللعب" للبدء</div>
+    <div class="question-box" id="questionText">أدخل اسمك واضغط "ابدأ التحدي"</div>
 
     <div class="game-container" id="containerArea">
       <canvas id="gameCanvas" width="400" height="400"></canvas>
       
+      <!-- شاشة البداية -->
       <div class="overlay" id="startOverlay">
-        <h3 style="margin-bottom: 6px;">مرحباً بك يا بطل!</h3>
-        <p style="font-size: 12px; opacity: 0.9; margin-bottom: 8px;">
-          اقرأ وصف الخاصية جيداً وتوجّه نحو الرمز المناسب.<br>
-          كل رمز صحيح = درجات وبونص وقت.
+        <h3 style="margin-bottom: 6px; color: var(--accent);">مرحباً بك يا بطل! 👋</h3>
+        <p style="font-size: 11px; opacity: 0.9; margin-bottom: 6px;">
+          اقرأ وصف الخاصية وتوجّه بالثعبان نحو الإجابة الصحيحة.<br>
+          ✨ كل 4 إجابات صحيحة متتالية تمنحك قلباً حتى 500 نقطة (حد أقصى 5 قلوب).<br>
+          🏆 قفل اللعبة والدرجة النهائية: 1000 نقطة!
         </p>
-        <button class="btn" onclick="startGame()">ابدأ التحدي</button>
+        <input type="text" id="playerNameInput" class="player-input" placeholder="اكتب اسمك هنا..." maxlength="22" />
+        <button class="btn" onclick="initiateGameFlow()">ابدأ التحدي</button>
       </div>
 
+      <!-- شاشة الانتقال والنصيحة -->
+      <div class="overlay hidden" id="prepOverlay">
+        <h3 style="color: var(--accent); margin-bottom: 8px;">اللعبة هتبدأ دلوقت<span class="loading-dots"></span></h3>
+        <div class="advice-card" id="adviceText"></div>
+      </div>
+
+      <!-- شاشة الإيقاف المؤقت -->
+      <div class="overlay hidden" id="pauseOverlay">
+        <h3 style="color: var(--accent); margin-bottom: 8px;">اللعبة متوقفة مؤقتاً ⏸️</h3>
+        <p style="font-size: 12px; margin-bottom: 12px;">خذ نفساً عميقاً ثم اضغط استئناف للمتابعة</p>
+        <button class="btn" onclick="togglePause()">استئناف اللعب ▶️</button>
+      </div>
+
+      <!-- شاشة نهاية اللعبة / الفوز -->
       <div class="overlay hidden" id="gameOverOverlay">
-        <h3 style="color: var(--danger); margin-bottom: 6px;">انتهت اللعبة!</h3>
-        <p style="font-size: 13px; margin-bottom: 4px;">مجموع درجاتك: <span id="finalScore" style="color: var(--accent); font-weight: bold; font-size: 16px;">0</span></p>
-        <p style="font-size: 12px; margin-bottom: 8px; opacity: 0.85;">أعلى سكور مسجل: <span id="finalHighScore" style="font-weight: bold;">0</span></p>
-        <button class="btn" onclick="startGame()">إعادة المحاولة</button>
+        <h3 id="gameOverTitle" style="color: var(--danger); margin-bottom: 4px;">انتهت اللعبة!</h3>
+        <h4 id="congratsPlayer" style="color: var(--accent); margin-bottom: 6px; font-size: 14px; line-height: 1.4;"></h4>
+        <p style="font-size: 13px; margin-bottom: 2px;">مجموع درجاتك: <span id="finalScore" style="color: var(--accent); font-weight: bold; font-size: 17px;">0</span></p>
+        <p style="font-size: 11px; margin-bottom: 6px; opacity: 0.85;">أعلى نتيجة مسجلة: <span id="finalHighScore" style="font-weight: bold;">0</span></p>
+        
+        <div style="font-size: 10px; opacity: 0.9; margin-bottom: 8px; border-top: 1px dashed var(--border-color); padding-top: 6px; width: 100%;">
+          تصميم أ/ عبد الرحمن عبد الله | 01021779644
+        </div>
+        
+        <div style="display: flex; flex-direction: column; gap: 6px; width: 85%;">
+          <div style="display: flex; gap: 6px; justify-content: center;">
+            <button class="btn btn-share" style="margin-top:0; flex:1;" onclick="shareCard()">مشاركة النتيجة 📲</button>
+            <button class="btn btn-download" style="margin-top:0; flex:1;" onclick="downloadCardDirect()">حفظ لقطة 📸</button>
+          </div>
+          <button class="btn" style="margin-top:0; width: 100%;" onclick="initiateGameFlow()">إعادة المحاولة 🔄</button>
+        </div>
       </div>
     </div>
 
+    <!-- أزرار التحكم للموبايل -->
     <div class="mobile-controls">
       <button class="ctrl-btn up" onclick="handleDirection('UP')">⬆️</button>
-      <button class="ctrl-btn left" onclick="handleDirection('LEFT')">⬅️</button>
-      <button class="ctrl-btn down" onclick="handleDirection('DOWN')">⬇️</button>
       <button class="ctrl-btn right" onclick="handleDirection('RIGHT')">➡️</button>
+      <button class="ctrl-btn down" onclick="handleDirection('DOWN')">⬇️</button>
+      <button class="ctrl-btn left" onclick="handleDirection('LEFT')">⬅️</button>
     </div>
   </div>
 
   <script>
     const questionBank = [
-      // 1. الغازات والأبخرة
-      { q: "غاز يحدث فوراناً ويعكر ماء الجير الرائق لفترة قصيرة", correct: "CO₂", distractors: ["H₂S", "NO₂"] },
-      { q: "غاز ذو رائحة نفاذة يخضر ورقة مبللة بـ K₂Cr₂O₇ المحمضة", correct: "SO₂", distractors: ["CO₂", "HI"] },
-      { q: "غاز ذو رائحة كريهة يسود ورقة مبللة بأسيتات الرصاص", correct: "H₂S", distractors: ["SO₂", "HCl"] },
-      { q: "غاز عديم اللون يتحول عند فوهة الأنبوبة إلى لون بني محمر", correct: "NO", distractors: ["CO₂", "HCl"] },
-      { q: "غاز عديم اللون يكون سحب بيضاء مع ساق مبللة بمحلول النشادر", correct: "HCl", distractors: ["H₂S", "NO"] },
-      { q: "أبخرة برتقالية حمراء تسبب اصفرار ورقة مبللة بالنشا", correct: "Br₂", distractors: ["I₂", "SO₂"] },
-      { q: "أبخرة بنفسجية تسبب زرقة ورقة مبللة بمحلول النشا", correct: "I₂", distractors: ["Br₂", "CO₂"] },
-      { q: "أبخرة بنية حمراء تزداد كثافتها بإضافة خراطة النحاس", correct: "NO₂", distractors: ["HCl", "H₂S"] },
+      { q: "الغاز الذي يحدث فوراناً ويعكر ماء الجير الرائق لفترة قصيرة مكوناً CaCO3", correct: "CO₂", distractors: ["H₂S", "SO₂"] },
+      { q: "الغاز ذو الرائحة النفاذة الذي يخضر ورقة مبللة بـ K₂Cr₂O₇ المحمضة", correct: "SO₂", distractors: ["HCl", "NO₂"] },
+      { q: "الغاز ذو الرائحة الكريهة الذي يسود ورقة مبللة بأسيتات الرصاص يتصاعد من أملاح", correct: "الكبريتيد", distractors: ["الكبريتيت", "النيتريت"] },
+      { q: "غاز عديم اللون يتحول عند فوهة الأنبوبة إلى لون بني محمر بتكوين NO₂", correct: "NO", distractors: ["HBr", "HI"] },
+      { q: "عند تفاعل غاز HCl مع ساق مبللة بمحلول النشادر تتكون سحب بيضاء من", correct: "NH₄Cl", distractors: ["CaCO₃", "AlCl₃"] },
+      { q: "يتأكسد غاز HBr جزئياً بفعل حمض الكبريتيك المركز وتنفصل عنه أبخرة", correct: "برتقالية حمراء", distractors: ["بنفسجية", "بنية حمراء"] },
+      { q: "الأبخرة التي تسبب اصفرار ورقة مبللة بالنشا هي أبخرة", correct: "Br₂", distractors: ["I₂", "NO₂"] },
+      { q: "غاز يتأكسد جزء منه بفعل حمض الكبريتيك وتنفصل منه أبخرة بنفسجية", correct: "HI", distractors: ["HBr", "HCl"] },
+      { q: "تسبب أبخرة اليود (I₂) زرقة ورقة مبللة بمحلول", correct: "النشا", distractors: ["النشادر", "أسيتات الرصاص"] },
+      { q: "تتصاعد الأبخرة البنية الحمراء لغاز NO₂ وتزداد كثافتها بإضافة", correct: "خراطة النحاس", distractors: ["برادة حديد", "ماء الجير"] },
+      { q: "يتشابه ملح الكربونات مع البيكربونات في تصاعد غاز", correct: "CO₂", distractors: ["SO₂", "H₂S"] },
+      { q: "الراسب الأبيض المتكون عند إمرار غاز CO₂ في ماء الجير لفترة قصيرة", correct: "CaCO₃", distractors: ["Ca(HCO₃)₂", "CaSO₄"] },
+      { q: "يتصاعد غاز SO₂ ذو الرائحة النفاذة عند الكشف عن أملاح", correct: "الكبريتيت والثيوكبريتات", distractors: ["الكبريتيد والنيتريت", "النترات والكلوريد"] },
+      { q: "المادة الخضراء الناتجة عن أكسدة SO₂ بواسطة ثاني كرومات البوتاسيوم", correct: "Cr₂(SO₄)₃", distractors: ["K₂SO₄", "CrSO₄"] },
+      { q: "يتكون راسب أسود نتيجة تفاعل غاز H₂S مع", correct: "أسيتات الرصاص", distractors: ["ماء الجير", "ثاني كرومات البوتاسيوم"] },
+      { q: "غاز أكسيد النيتريك (NO) المتصاعد من أملاح النيتريت يتميز بأنه", correct: "عديم اللون", distractors: ["بني محمر", "أبخرة برتقالية"] },
+      { q: "الغاز عديم اللون المكون لسحب بيضاء مع النشادر يتصاعد من أملاح", correct: "الكلوريد", distractors: ["البروميد", "اليوديد"] },
+      { q: "يتشابه الغازان HBr و HI في أن كليهما", correct: "عديم اللون ويتأكسد بحمض الكبريتيك", distractors: ["يسببان زرقة النشا", "يكونان سحباً بيضاء"] },
+      { q: "الأبخرة البرتقالية الحمراء الناتجة عن تأكسد HBr تتكون من", correct: "Br₂", distractors: ["I₂", "NO₂"] },
+      { q: "يتم التمييز بين غازي CO₂ و SO₂ باستخدام ورقة مبللة بمحلول", correct: "ثاني كرومات البوتاسيوم", distractors: ["النشا", "كلوريد الأمونيوم"] },
+      { q: "الأنيون الذي لا يكون أي رواسب وجميع أملاحه تذوب في الماء والأحماض", correct: "HCO₃⁻", distractors: ["CO₃²⁻", "PO₄³⁻"] },
+      { q: "الراسب الأسود الذي يذوب في حمض النيتريك الساخن هو", correct: "CuS", distractors: ["PbSO₄", "CaSO₄"] },
+      { q: "يتكون راسب أبيض يسود بالتسخين عند تفاعل AgNO₃ مع ملح", correct: "الكبريتيت", distractors: ["الكبريتيد", "الثيوكبريتات"] },
+      { q: "الصيغة الكيميائية لراسب كبريتيت الفضة الأبيض الذي يسود بالتسخين", correct: "Ag₂SO₃", distractors: ["Ag₂S", "Ag₂SO₄"] },
+      { q: "عند تفاعل الثيوكبريتات مع حمض HCl المخفف يظهر راسب أصفر معلق من", correct: "الكبريت (S)", distractors: ["اليود", "كبريتيد الفضة"] },
+      { q: "راسب كلوريد الفضة (AgCl) يتميز بأنه راسب أبيض", correct: "يذوب سريعاً في النشادر", distractors: ["يذوب ببطء في النشادر", "لا يذوب في النشادر"] },
+      { q: "عند تعرض راسب كلوريد الفضة (AgCl) للضوء فإن لونه يصير", correct: "بنفسجياً", distractors: ["أصفر", "داكناً"] },
+      { q: "راسب بروميد الفضة (AgBr) يتميز بأن لونه", correct: "أبيض مصفر", distractors: ["أبيض ناصع", "أصفر فاقع"] },
+      { q: "معدل ذوبان راسب بروميد الفضة (AgBr) في محلول النشادر المركز", correct: "يذوب ببطء", distractors: ["يذوب سريعاً", "لا يذوب تماماً"] },
+      { q: "يتحول لون راسب بروميد الفضة عند تعرضه للضوء إلى اللون", correct: "الداكن", distractors: ["البنفسجي", "الأخضر"] },
+      { q: "الراسب الأصفر الذي لا يذوب في محلول النشادر المركز هو", correct: "AgI", distractors: ["Ag₃PO₄", "AgBr"] },
+      { q: "الراسب الأصفر الذي يذوب في محلول النشادر وفي حمض النيتريك", correct: "Ag₃PO₄", distractors: ["AgI", "PbI₂"] },
+      { q: "راسب كبريتات الباريوم (BaSO₄) الأبيض يتميز بأنه", correct: "لا يذوب في HCl", distractors: ["يذوب في HCl", "يذوب بالماء الساخن"] },
+      { q: "راسب فوسفات الباريوم Ba₃(PO₄)₂ الأبيض يتميز بأنه", correct: "يذوب في HCl", distractors: ["لا يذوب في HCl", "يسود بالتسخين"] },
+      { q: "راسب كبريتات الرصاص II وصيغته PbSO₄ يتميز بلونه", correct: "الأبيض", distractors: ["الأسود", "الأصفر"] },
+      { q: "الراسب الأبيض الجيلاتيني Al(OH)₃ يذوب في الأحماض وأيضاً في وفرة من", correct: "NaOH", distractors: ["NH₄OH", "ماء الجير"] },
+      { q: "راسب هيدروكسيد الحديد II وصيغته Fe(OH)₂ يتميز بلونه", correct: "الأبيض المخضر", distractors: ["البني المحمر", "الأصفر"] },
+      { q: "راسب هيدروكسيد الحديد III وصيغته Fe(OH)₃ يتميز بلونه", correct: "البني المحمر", distractors: ["الأبيض المخضر", "الأسود"] },
+      { q: "راسب كربونات الكالسيوم (CaCO₃) الأبيض يذوب في الأحماض وأيضاً في", correct: "الماء المحتوي على CO₂", distractors: ["وفرة من NaOH", "محلول النشادر"] },
+      { q: "جميع أملاح الكاتيونات الآتية تذوب في الماء ولا تكون رواسب إطلاقاً", correct: "Na⁺, K⁺, NH₄⁺", distractors: ["Ag⁺, Pb²⁺, Hg⁺", "Ca²⁺, Ba²⁺, Cu²⁺"] }
+    ];
 
-      // 2. الرواسب وتفاعلاتها
-      { q: "راسب أبيض يسود بالتسخين", correct: "Ag₂SO₃", distractors: ["Ag₂S", "Fe(OH)₃"] },
-      { q: "راسب أسود يذوب في حمض النيتريك الساخن", correct: "CuS", distractors: ["BaSO₄", "Fe(OH)₂"] },
-      { q: "راسب أبيض يصير بنفسجياً بالضوء ويذوب في محلول النشادر", correct: "AgCl", distractors: ["AgI", "Ag₂S"] },
-      { q: "راسب أبيض مصفر يذوب ببطء في النشادر ويصير داكناً بالضوء", correct: "AgBr", distractors: ["Ag₂S", "CuS"] },
-      { q: "راسب أصفر لا يذوب في محلول النشادر", correct: "AgI", distractors: ["Ag₃PO₄", "AgCl"] },
-      { q: "راسب أصفر يذوب في محلول النشادر وفي حمض النيتريك", correct: "Ag₃PO₄", distractors: ["AgI", "PbS"] },
-      { q: "راسب أبيض جيلاتيني يذوب في وفرة من الصودا الكاوية", correct: "Al(OH)₃", distractors: ["Fe(OH)₂", "Fe(OH)₃"] },
-      { q: "راسب أبيض مخضر يذوب في الأحماض المخففة", correct: "Fe(OH)₂", distractors: ["Fe(OH)₃", "CuS"] },
-      { q: "راسب بني محمر يذوب في الأحماض المخففة", correct: "Fe(OH)₃", distractors: ["Fe(OH)₂", "AgCl"] },
-      { q: "راسب أبيض لا يذوب في حمض الهيدروكلوريك المخفف (HCl)", correct: "BaSO₄", distractors: ["Ba₃(PO₄)₂", "CuS"] },
-      { q: "راسب أبيض يذوب في حمض الهيدروكلوريك المخفف (HCl)", correct: "Ba₃(PO₄)₂", distractors: ["BaSO₄", "AgI"] },
-      { q: "راسب أبيض يذوب في الماء المحتوي على غاز ثاني أكسيد الكربون", correct: "CaCO₃", distractors: ["PbS", "CuS"] },
-
-      // 3. الأنيونات
-      { q: "أنيون مع حمض HCl المخفف يعطي راسباً أصفر معلقاً من الكبريت", correct: "S₂O₃²⁻", distractors: ["CO₃²⁻", "SO₄²⁻"] },
-      { q: "أنيون جميع أملاحه تذوب في الماء ولا يكون رواسب في المنهج", correct: "HCO₃⁻", distractors: ["CO₃²⁻", "PO₄³⁻"] }
+    const adviceList = [
+      "قال رسول الله ﷺ: «إِنَّ اللَّهَ يُحِبُّ إِذَا عَمِلَ أَحَدُكُمْ عَمَلاً أَنْ يُتْقِنَهُ».",
+      "بر الوالدين ودعاؤهما هو سر التوفيق الأول في مسيرتك الدراسية والحياتية.",
+      "تذكر أن النجاح رحلة تراكمية تصنعها كل دقيقة تركيز ومذاكرة بصدق.",
+      "حافظ على صلاتك في وقتها، يُبارك الله لك في فهمك ووقتك وطاقتك.",
+      "من توكل على الله كفاه؛ ابذل أقصى ما تملك وسلِّم النتائج لخالقك.",
+      "التواضع عند الفهم وحسن الخلق مع الزملاء والمعلمين زكاة العلم الحقيقية.",
+      "لا تحسبن المجد تمراً أنت آكله .. لن تبلغ المجد حتى تلعق الصبرا."
     ];
 
     let audioCtx = null;
@@ -351,6 +465,13 @@
       } catch(e) {}
     }
 
+    function playWinFanfare() {
+      const notes = [440, 554, 659, 880];
+      notes.forEach((freq, idx) => {
+        setTimeout(() => playTone(freq, 'triangle', 0.25), idx * 160);
+      });
+    }
+
     const speeds = [
       { name: "بطيء 🐢", delay: 170 },
       { name: "متوسط ⚡", delay: 125 },
@@ -361,7 +482,7 @@
     function cycleSpeed() {
       currentSpeedIdx = (currentSpeedIdx + 1) % speeds.length;
       document.getElementById("speedBtn").innerText = `السرعة: ${speeds[currentSpeedIdx].name}`;
-      if (gameLoopInterval) {
+      if (gameLoopInterval && !isPaused) {
         clearInterval(gameLoopInterval);
         gameLoopInterval = setInterval(gameStep, speeds[currentSpeedIdx].delay);
       }
@@ -370,7 +491,10 @@
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
     const GRID_SIZE = 20; 
-    const TILE_COUNT = canvas.width / GRID_SIZE;
+    const TILE_COUNT = canvas.width / GRID_SIZE; 
+    const MAX_SNAKE_LENGTH = 18; 
+    const QUESTION_TIME = 20; 
+    const TARGET_SCORE = 1000; // الدرجة النهائية لقفل اللعبة
 
     let snake = [];
     let dir = { x: 0, y: -1 };
@@ -378,14 +502,23 @@
     let score = 0;
     let highScore = parseInt(localStorage.getItem("chem_snake_highscore") || "0", 10);
     let lives = 3;
+    const MAX_LIVES = 5; 
+    let streakCount = 0; 
     let skips = 3;
-    let timer = 15;
+    let timer = QUESTION_TIME;
     let timerInterval = null;
     let gameLoopInterval = null;
     let currentQuestion = null;
     let foodItems = [];
     let highlightedItem = null;
     let unaskedQuestions = [];
+    let playerName = "بطل الكيمياء";
+    let isPaused = false;
+    let isGameWon = false;
+
+    // ألعاب كرنفالية (Confetti)
+    let confettiParticles = [];
+    let confettiAnimationId = null;
 
     document.getElementById("highScore").innerText = highScore;
 
@@ -401,14 +534,67 @@
       }
     }
 
-    function startGame() {
+    function togglePause() {
+      if (!gameLoopInterval && !isPaused) return;
+      isPaused = !isPaused;
+      const pauseOverlay = document.getElementById("pauseOverlay");
+      const pauseBtn = document.getElementById("pauseBtn");
+
+      if (isPaused) {
+        clearInterval(gameLoopInterval);
+        clearInterval(timerInterval);
+        pauseOverlay.classList.remove("hidden");
+        pauseBtn.innerText = "▶️ متابعة";
+      } else {
+        pauseOverlay.classList.add("hidden");
+        pauseBtn.innerText = "⏸️ إيقاف";
+        gameLoopInterval = setInterval(gameStep, speeds[currentSpeedIdx].delay);
+        startQuestionTimer();
+      }
+    }
+
+    function initiateGameFlow() {
       initAudio();
+      if (confettiAnimationId) cancelAnimationFrame(confettiAnimationId);
+      confettiParticles = [];
+
+      const input = document.getElementById("playerNameInput");
+      if (input.value.trim() !== "") {
+        playerName = input.value.trim();
+      }
+      
       document.getElementById("startOverlay").classList.add("hidden");
       document.getElementById("gameOverOverlay").classList.add("hidden");
 
+      const randomAdvice = adviceList[Math.floor(Math.random() * adviceList.length)];
+      document.getElementById("adviceText").innerText = randomAdvice;
+      
+      const prepOverlay = document.getElementById("prepOverlay");
+      prepOverlay.classList.remove("hidden");
+
+      setTimeout(() => {
+        prepOverlay.classList.add("hidden");
+        startGame();
+      }, 3500);
+    }
+
+    function shuffleArray(arr) {
+      const array = [...arr];
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    function startGame() {
       score = 0;
       lives = 3;
+      streakCount = 0;
       skips = 3;
+      isPaused = false;
+      isGameWon = false;
+      document.getElementById("pauseBtn").innerText = "⏸️ إيقاف";
       snake = [
         { x: 10, y: 14 },
         { x: 10, y: 15 },
@@ -417,7 +603,7 @@
       dir = { x: 0, y: -1 };
       nextDir = { x: 0, y: -1 };
       highlightedItem = null;
-      unaskedQuestions = [...questionBank].sort(() => Math.random() - 0.5);
+      unaskedQuestions = shuffleArray(questionBank);
 
       updateStatsUI();
       nextQuestion();
@@ -434,10 +620,19 @@
       document.getElementById("timer").innerText = timer;
     }
 
+    function startQuestionTimer() {
+      clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        timer--;
+        document.getElementById("timer").innerText = timer;
+        if (timer <= 0) handleWrongChoice();
+      }, 1000);
+    }
+
     function nextQuestion() {
       highlightedItem = null;
       if (unaskedQuestions.length === 0) {
-        unaskedQuestions = [...questionBank].sort(() => Math.random() - 0.5);
+        unaskedQuestions = shuffleArray(questionBank);
       }
       currentQuestion = unaskedQuestions.pop();
       document.getElementById("questionText").innerText = currentQuestion.q;
@@ -449,39 +644,54 @@
       ].sort(() => Math.random() - 0.5);
 
       foodItems = [];
+      const head = snake[0] || { x: 10, y: 10 };
+
       choices.forEach(c => {
         let pos;
         let attempts = 0;
-        while (!pos || isOccupied(pos.x, pos.y)) {
+        while (!pos || isOccupied(pos.x, pos.y, head)) {
           pos = {
             x: Math.floor(Math.random() * (TILE_COUNT - 4)) + 1,
-            y: Math.floor(Math.random() * (TILE_COUNT - 4)) + 2
+            y: Math.floor(Math.random() * (TILE_COUNT - 3)) + 1
           };
           attempts++;
-          if (attempts > 150) break;
+          if (attempts > 300) break;
         }
         foodItems.push({ ...pos, text: c.text, isCorrect: c.isCorrect });
       });
 
-      clearInterval(timerInterval);
-      timer = 15;
+      timer = QUESTION_TIME;
       document.getElementById("timer").innerText = timer;
-      timerInterval = setInterval(() => {
-        timer--;
-        document.getElementById("timer").innerText = timer;
-        if (timer <= 0) handleWrongChoice();
-      }, 1000);
+      startQuestionTimer();
     }
 
-    function isOccupied(x, y) {
-      if (snake.some(segment => (segment.x === x || segment.x === x + 1) && segment.y === y)) return true;
-      if (foodItems.some(item => Math.abs(item.x - x) <= 2 && Math.abs(item.y - y) <= 1)) return true;
+    function isOccupied(x, y, head) {
+      const distFromHead = Math.hypot(x - head.x, y - head.y);
+      if (distFromHead < 4.2) return true;
+
+      const forward1X = head.x + dir.x;
+      const forward1Y = head.y + dir.y;
+      const forward2X = head.x + dir.x * 2;
+      const forward2Y = head.y + dir.y * 2;
+      const forward3X = head.x + dir.x * 3;
+      const forward3Y = head.y + dir.y * 3;
+
+      if ((Math.abs(x - forward1X) <= 2 && Math.abs(y - forward1Y) <= 1) ||
+          (Math.abs(x - forward2X) <= 2 && Math.abs(y - forward2Y) <= 1) ||
+          (Math.abs(x - forward3X) <= 2 && Math.abs(y - forward3Y) <= 1)) {
+        return true;
+      }
+
+      if (snake.some(seg => (seg.x >= x - 1 && seg.x <= x + 3) && seg.y === y)) return true;
+      if (foodItems.some(item => Math.abs(item.x - x) <= 3 && Math.abs(item.y - y) <= 1)) return true;
+
       return false;
     }
 
     function skipQuestion() {
-      if (skips > 0) {
+      if (skips > 0 && !isPaused) {
         skips--;
+        streakCount = 0;
         playTone(400, 'sine', 0.1);
         updateStatsUI();
         nextQuestion();
@@ -489,6 +699,7 @@
     }
 
     function handleWrongChoice() {
+      streakCount = 0;
       playTone(180, 'sawtooth', 0.25);
       lives--;
       updateStatsUI();
@@ -502,24 +713,84 @@
       clearInterval(timerInterval);
 
       if (lives <= 0) {
-        gameOver();
+        endGame(false);
         return;
       }
 
       setTimeout(() => {
         highlightedItem = null;
         nextQuestion();
-      }, 1300);
+      }, 1400);
     }
 
-    function gameOver() {
-      playTone(130, 'sawtooth', 0.35);
+    // إطلاق الألعاب الكرنفالية والكونفيتي
+    function startCarnivalEffects() {
+      const colors = ['#f43f5e', '#38bdf8', '#fbbf24', '#34d399', '#a855f7', '#f97316'];
+      confettiParticles = [];
+      for (let i = 0; i < 90; i++) {
+        confettiParticles.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height - canvas.height,
+          size: Math.random() * 6 + 3,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          vx: (Math.random() - 0.5) * 3,
+          vy: Math.random() * 3 + 2,
+          rot: Math.random() * 360,
+          vRot: (Math.random() - 0.5) * 10
+        });
+      }
+
+      function animateConfetti() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        draw(); // رسم خلفية اللعبة
+
+        confettiParticles.forEach(p => {
+          p.x += p.vx;
+          p.y += p.vy;
+          p.rot += p.vRot;
+
+          if (p.y > canvas.height) {
+            p.y = -10;
+            p.x = Math.random() * canvas.width;
+          }
+
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate((p.rot * Math.PI) / 180);
+          ctx.fillStyle = p.color;
+          ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 1.5);
+          ctx.restore();
+        });
+
+        confettiAnimationId = requestAnimationFrame(animateConfetti);
+      }
+      animateConfetti();
+    }
+
+    function endGame(won = false) {
+      isGameWon = won;
       clearInterval(gameLoopInterval);
       clearInterval(timerInterval);
 
       if (score > highScore) {
         highScore = score;
         localStorage.setItem("chem_snake_highscore", highScore);
+      }
+
+      const title = document.getElementById("gameOverTitle");
+      const congrats = document.getElementById("congratsPlayer");
+
+      if (won) {
+        playWinFanfare();
+        startCarnivalEffects();
+        title.innerText = "🎉 مبروووك قفلت اللعبة! 🎉";
+        title.style.color = "#10b981";
+        congrats.innerHTML = `مبارك يا ${playerName}! 🏆<br>لقد حققت الدرجة النهائية (1000 نقطة) بجدارة وأثبت أنك عبقري الكيمياء الأول! 🌟`;
+      } else {
+        playTone(130, 'sawtooth', 0.35);
+        title.innerText = "انتهت اللعبة!";
+        title.style.color = "var(--danger)";
+        congrats.innerText = `أحسنت يا ${playerName}! 👏`;
       }
 
       document.getElementById("finalScore").innerText = score;
@@ -540,11 +811,12 @@
       for (let i = 1; i < snake.length; i++) {
         if (head.x === snake[i].x && head.y === snake[i].y) {
           lives--;
+          streakCount = 0;
           playTone(180, 'sawtooth', 0.25);
           updateStatsUI();
           snake = snake.slice(0, Math.max(3, i));
           if (lives <= 0) {
-            gameOver();
+            endGame(false);
             return;
           }
           break;
@@ -553,20 +825,48 @@
 
       snake.unshift(head);
 
-      let eatenIdx = foodItems.findIndex(f => (head.x === f.x || head.x === f.x + 1) && head.y === f.y);
+      let eatenIdx = foodItems.findIndex(f => (head.x >= f.x && head.x <= f.x + 2) && head.y === f.y);
       if (eatenIdx !== -1) {
         let eaten = foodItems[eatenIdx];
         if (eaten.isCorrect) {
           playTone(520, 'triangle', 0.1);
           score += 10 + timer;
+
+          // احتساب القلوب: فقط إذا كانت النقاط أقل من 500 نقطة
+          if (score < 500) {
+            streakCount++;
+            if (streakCount === 4) {
+              streakCount = 0;
+              if (lives < MAX_LIVES) {
+                lives++;
+                playTone(750, 'sine', 0.25);
+              }
+            }
+          } else {
+            streakCount = 0; // بعد 500 نقطة تتوقف زيادة القلوب نهائياً
+          }
+
           if (score > highScore) {
             highScore = score;
             localStorage.setItem("chem_snake_highscore", highScore);
           }
           updateStatsUI();
+
+          // فحص الوصول للدرجة النهائية 1000 نقطة
+          if (score >= TARGET_SCORE) {
+            score = TARGET_SCORE;
+            updateStatsUI();
+            endGame(true);
+            return;
+          }
+
           nextQuestion();
         } else {
           handleWrongChoice();
+        }
+
+        if (snake.length > MAX_SNAKE_LENGTH) {
+          snake.pop();
         }
       } else {
         snake.pop();
@@ -575,38 +875,58 @@
       draw();
     }
 
+    function fitText(text, maxWidth, baseSize) {
+      let size = baseSize;
+      ctx.font = `bold ${size}px system-ui, -apple-system, sans-serif`;
+      while (ctx.measureText(text).width > maxWidth && size > 7) {
+        size -= 0.5;
+        ctx.font = `bold ${size}px system-ui, -apple-system, sans-serif`;
+      }
+      return size;
+    }
+
     function draw() {
       const styles = getComputedStyle(document.body);
       ctx.fillStyle = styles.getPropertyValue('--board-bg').trim();
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+      const itemWidth = GRID_SIZE * 2.95;
+      const itemHeight = GRID_SIZE * 1.3;
+      const maxTextWidth = itemWidth - 6;
+
       foodItems.forEach(item => {
         ctx.fillStyle = styles.getPropertyValue('--item-bg').trim();
         ctx.beginPath();
-        ctx.roundRect(item.x * GRID_SIZE, item.y * GRID_SIZE, GRID_SIZE * 2, GRID_SIZE, 5);
+        ctx.roundRect(item.x * GRID_SIZE, item.y * GRID_SIZE, itemWidth, itemHeight, 6);
         ctx.fill();
 
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.4)";
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        const fontSize = fitText(item.text, maxTextWidth, 11.5);
         ctx.fillStyle = "#ffffff";
-        ctx.font = "bold 10px sans-serif";
+        ctx.font = `bold ${fontSize}px system-ui, -apple-system, sans-serif`;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
-        ctx.fillText(item.text, item.x * GRID_SIZE + GRID_SIZE, item.y * GRID_SIZE + (GRID_SIZE * 0.5));
+        ctx.fillText(item.text, item.x * GRID_SIZE + (itemWidth / 2), item.y * GRID_SIZE + (itemHeight / 2) + 1);
       });
 
       if (highlightedItem) {
         ctx.fillStyle = `rgba(16, 185, 129, ${highlightedItem.alpha})`;
         ctx.shadowColor = "#10b981";
-        ctx.shadowBlur = 10;
+        ctx.shadowBlur = 12;
         ctx.beginPath();
-        ctx.roundRect(highlightedItem.x * GRID_SIZE - 2, highlightedItem.y * GRID_SIZE - 2, GRID_SIZE * 2 + 4, GRID_SIZE + 4, 6);
+        ctx.roundRect(highlightedItem.x * GRID_SIZE - 2, highlightedItem.y * GRID_SIZE - 2, itemWidth + 4, itemHeight + 4, 7);
         ctx.fill();
         ctx.shadowBlur = 0;
 
+        const fontSize = fitText(highlightedItem.text, maxTextWidth, 11.5);
         ctx.fillStyle = "#ffffff";
-        ctx.font = "bold 10.5px sans-serif";
+        ctx.font = `bold ${fontSize}px system-ui, -apple-system, sans-serif`;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
-        ctx.fillText(highlightedItem.text, highlightedItem.x * GRID_SIZE + GRID_SIZE, highlightedItem.y * GRID_SIZE + (GRID_SIZE * 0.5));
+        ctx.fillText(highlightedItem.text, highlightedItem.x * GRID_SIZE + (itemWidth / 2), highlightedItem.y * GRID_SIZE + (itemHeight / 2) + 1);
       }
 
       snake.forEach((seg, i) => {
@@ -620,6 +940,7 @@
     }
 
     function handleDirection(newDir) {
+      if (isPaused) return;
       if (newDir === 'UP' && dir.y === 0) nextDir = { x: 0, y: -1 };
       if (newDir === 'DOWN' && dir.y === 0) nextDir = { x: 0, y: 1 };
       if (newDir === 'LEFT' && dir.x === 0) nextDir = { x: -1, y: 0 };
@@ -627,6 +948,10 @@
     }
 
     window.addEventListener("keydown", e => {
+      if (e.code === "Space") {
+        togglePause();
+        return;
+      }
       if (["ArrowUp", "KeyW"].includes(e.code)) handleDirection('UP');
       if (["ArrowDown", "KeyS"].includes(e.code)) handleDirection('DOWN');
       if (["ArrowLeft", "KeyA"].includes(e.code)) handleDirection('LEFT');
@@ -653,6 +978,93 @@
         else if (dy < -25) handleDirection('UP');
       }
     }, { passive: true });
+
+    function generateScoreCardCanvas() {
+      const shareCanvas = document.createElement("canvas");
+      shareCanvas.width = 600;
+      shareCanvas.height = 760;
+      const sCtx = shareCanvas.getContext("2d");
+
+      const grad = sCtx.createLinearGradient(0, 0, 0, 760);
+      grad.addColorStop(0, "#0b1329");
+      grad.addColorStop(1, "#1e293b");
+      sCtx.fillStyle = grad;
+      sCtx.fillRect(0, 0, 600, 760);
+
+      sCtx.strokeStyle = isGameWon ? "#10b981" : "#38bdf8";
+      sCtx.lineWidth = 4;
+      sCtx.strokeRect(20, 20, 560, 720);
+
+      sCtx.fillStyle = isGameWon ? "#10b981" : "#38bdf8";
+      sCtx.font = "bold 32px system-ui, sans-serif";
+      sCtx.textAlign = "center";
+      sCtx.fillText(isGameWon ? "🏆 بطل كيمياء الثانوية العامة 🏆" : "🐍 تحدي كيمياء الكشوفات", 300, 95);
+
+      sCtx.fillStyle = "#ffffff";
+      sCtx.font = "bold 26px system-ui, sans-serif";
+      sCtx.fillText(isGameWon ? `مبارك يا ${playerName}! قفلت اللعبة 🌟` : `أحسنت يا ${playerName}! 🌟`, 300, 165);
+
+      sCtx.fillStyle = "#94a3b8";
+      sCtx.font = "18px system-ui, sans-serif";
+      sCtx.fillText(isGameWon ? "إنجاز أسطوري: تحقيق الدرجة الكاملة 1000/1000" : "شهادة إتمام جولة التحدي بنجاح", 300, 215);
+
+      sCtx.fillStyle = isGameWon ? "rgba(16, 185, 129, 0.15)" : "rgba(56, 189, 248, 0.15)";
+      sCtx.fillRect(100, 255, 400, 140);
+      sCtx.strokeStyle = isGameWon ? "#10b981" : "#38bdf8";
+      sCtx.lineWidth = 2;
+      sCtx.strokeRect(100, 255, 400, 140);
+
+      sCtx.fillStyle = isGameWon ? "#34d399" : "#38bdf8";
+      sCtx.font = "bold 54px system-ui, sans-serif";
+      sCtx.fillText(`${score} نقطة`, 300, 345);
+
+      sCtx.fillStyle = "#e2e8f0";
+      sCtx.font = "19px system-ui, sans-serif";
+      sCtx.fillText(`أعلى سكور شخصي: ${highScore}`, 300, 440);
+
+      sCtx.fillStyle = "#a7f3d0";
+      sCtx.font = "italic 16px system-ui, sans-serif";
+      sCtx.fillText("«إِنَّ اللَّهَ يُحِبُّ إِذَا عَمِلَ أَحَدُكُمْ عَمَلاً أَنْ يُتْقِنَهُ»", 300, 510);
+
+      sCtx.fillStyle = "#38bdf8";
+      sCtx.font = "bold 20px system-ui, sans-serif";
+      sCtx.fillText("تصميم وإشراف:", 300, 600);
+      sCtx.fillStyle = "#ffffff";
+      sCtx.font = "bold 23px system-ui, sans-serif";
+      sCtx.fillText("أ/ عبد الرحمن عبد الله", 300, 640);
+      sCtx.fillStyle = "#cbd5e1";
+      sCtx.font = "18px system-ui, sans-serif";
+      sCtx.fillText("هاتف: 01021779644", 300, 675);
+
+      return shareCanvas;
+    }
+
+    function shareCard() {
+      const shareCanvas = generateScoreCardCanvas();
+      shareCanvas.toBlob(blob => {
+        if (!blob) return;
+        const file = new File([blob], `chem-score-${playerName}.png`, { type: 'image/png' });
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          navigator.share({
+            title: 'نتيجة تحدي الكيمياء',
+            text: isGameWon 
+              ? `أنا ${playerName} قفلت لعبة كيمياء الكشوفات وحققت الدرجة النهائية 1000 نقطة! 🏆🧪` 
+              : `أنا ${playerName} حققت ${score} نقطة في لعبة كيمياء الكشوفات! 🐍🧪`,
+            files: [file]
+          }).catch(() => downloadCardDirect());
+        } else {
+          downloadCardDirect();
+        }
+      });
+    }
+
+    function downloadCardDirect() {
+      const shareCanvas = generateScoreCardCanvas();
+      const a = document.createElement("a");
+      a.download = `نتيجة_${playerName}_كيمياء.png`;
+      a.href = shareCanvas.toDataURL("image/png");
+      a.click();
+    }
   </script>
 </body>
 </html>
